@@ -1,0 +1,86 @@
+
+
+//we created FirmController.js to add firm to the vendor based on the id
+const Firm = require('../models/Firm');
+const Vendor = require('../models/Vendor');
+const multer = require('multer');  // multer is a package that is used to addd images to the database
+const path = require('path');
+
+
+   const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Folder to save uploaded files
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+  },
+});
+
+const upload = multer({ storage: storage });
+
+
+
+
+const addFirm = async(req,res)=>{
+
+    try{
+    const {firmName,area,category,region,offer} = req.body;
+
+    const image = req.file? req.file.filename:undefined;  //path to add images
+
+ 
+    const vendor = await Vendor.findById(req.vendorId); // we are getting vendor id 
+
+    if(!vendor){
+        res.status(404).json({message:"vendor not found"})
+    }
+
+    //to store firm records into the database
+    
+    const firm = new Firm({
+        firmName,
+        area,
+        category,
+        region,
+        offer,
+        image,
+        vendor:vendor._id
+
+    })
+        
+    
+
+    const savedFirm =  await firm.save();
+
+    vendor.firm.push(savedFirm) //to push the firm details to the vendor table
+
+    await vendor.save()
+
+    return res.status(200).json({message:"Firm Added successfully"});
+}catch(error){
+   console.log(error)
+   res.status(500).json("internal server error");
+}
+
+}
+
+const deleteFirmById = async(req,res) =>{
+
+  try {
+        
+    const firmId = req.params.firmId;
+
+    const deleteProduct = await Firm.findByIdAndDelete(firmId);
+
+    if(!deleteProduct){
+      return res.status(404).json({error:"No product found"});
+    }
+
+  } catch (error) {
+       
+     console.error(error);
+        res.status(500).json({error:"Internal server error"});
+  }
+}
+
+module.exports = {addFirm:[upload.single('image'),addFirm],deleteFirmById};
