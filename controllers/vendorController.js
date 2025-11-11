@@ -84,7 +84,10 @@ const getVendorById = async (req,res) =>{
         if(!vendor){
             return res.status(404).json({error:"vendor not found"});
         }
-        res.status(200).json({vendor})
+        const vendorFirmId = vendor.firm[0]._id;
+
+        res.status(200).json({vendorId,vendorFirmId,vendor})
+        console.log(vendorFirmId);
     } catch (error) {
          console.log(error);
         res.status(500).json({error:"Internal server error"});
