@@ -29,7 +29,8 @@ router.post('/forgot-password', async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; // valid 1 hour
     await user.save();
 
-    const resetUrl = `https://react-suby-frotnend.vercel.app/reset-password/${token}`;
+    const resetUrl = `https://react-suby-frontend.vercel.app/reset-password/${token}`;
+
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
