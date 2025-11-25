@@ -31,16 +31,18 @@ router.post('/forgot-password', async (req, res) => {
 
     const resetUrl = `https://react-suby-frontend.vercel.app/reset-password/${token}`;
 
-
+    // ✅ USE MAILTRAP (NOT GMAIL)
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
       },
     });
 
     await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
       to: user.email,
       subject: "Password Reset Request",
       html: `
@@ -53,7 +55,7 @@ router.post('/forgot-password', async (req, res) => {
     res.json({ message: "Password reset email sent" });
 
   } catch (err) {
-    console.error(err);
+    console.error("MAILTRAP ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -90,6 +92,5 @@ router.post('/reset-password/:token', async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 module.exports = router;
